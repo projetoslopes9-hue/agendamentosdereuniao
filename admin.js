@@ -240,42 +240,83 @@ function loadLists() {
 
 /* Solicitações recebidas */
 
+
 function renderRequests() {
-  const target = $("#requests");
+  const target = document.querySelector("#requests");
   if (!target) return;
 
   if (!requestsData.length) {
     target.innerHTML = `
       <div class="empty">
-        Nenhuma solicitação recebida.
+        <div style="font-size:28px;margin-bottom:8px">📭</div>
+        <strong>Nenhuma solicitação recebida</strong>
+        <p>Quando alguém solicitar uma reunião, ela aparecerá aqui.</p>
       </div>`;
     return;
   }
 
   target.innerHTML = requestsData.map(item => {
     const status = String(item.status || "pendente").toLowerCase();
-    const alreadyHandled = ["confirmada", "confirmed", "recusada", "rejected"]
-      .includes(status);
+    const handled = [
+      "confirmada", "confirmed", "recusada", "rejected"
+    ].includes(status);
+
+    const initial = safe(
+      (item.nome || "C").trim().charAt(0).toUpperCase()
+    );
 
     return `
-      <article class="item">
-        <div class="row">
-          <strong>${safe(item.nome || "Cliente")}</strong>
-          <span class="pill ${statusClass(status)}">${safe(statusText(status))}</span>
+      <article class="item" data-request-id="${safe(item.id)}">
+        <div class="request-heading">
+          <div class="request-person">
+            <div class="request-avatar">${initial}</div>
+            <div>
+              <strong>${safe(item.nome || "Cliente")}</strong>
+              <div class="muted" style="margin-top:5px">
+                Solicitação de reunião
+              </div>
+            </div>
+          </div>
+          <span class="pill ${statusClass(status)}">
+            ${safe(statusText(status))}
+          </span>
         </div>
-        <p>${safe(item.email || "Sem e-mail")} · ${safe(item.telefone || "Sem telefone")}</p>
-        <p><strong>Data:</strong> ${safe(formatDate(item.data, item.horario))}</p>
-        <p><strong>Assunto:</strong> ${safe(item.assunto || "Sem assunto")}</p>
+
+        <div class="request-details">
+          <div class="request-detail">
+            <span class="detail-icon">✉️</span>
+            <span>${safe(item.email || "E-mail não informado")}</span>
+          </div>
+          <div class="request-detail">
+            <span class="detail-icon">📞</span>
+            <span>${safe(item.telefone || "Telefone não informado")}</span>
+          </div>
+          <div class="request-detail">
+            <span class="detail-icon">📅</span>
+            <span><strong>Data:</strong> ${safe(formatDate(item.data, item.horario))}</span>
+          </div>
+          <div class="request-detail">
+            <span class="detail-icon">📝</span>
+            <span><strong>Assunto:</strong> ${safe(item.assunto || "Sem assunto")}</span>
+          </div>
+        </div>
+
         ${
-          alreadyHandled
-            ? ""
-            : `<div class="actions">
-                <button type="button" data-confirm="${safe(item.id)}">Confirmar reunião</button>
-                <button type="button" class="danger" data-reject="${safe(item.id)}">Recusar</button>
-              </div>`
+          handled
+            ? `<p class="muted" style="margin:14px 0 0">
+                 Esta solicitação já foi processada.
+               </p>`
+            : `<div class="request-actions">
+                 <button type="button" data-confirm="${safe(item.id)}">
+                   ✓ Confirmar reunião
+                 </button>
+                 <button type="button" data-reject="${safe(item.id)}">
+                   ✕ Recusar
+                 </button>
+               </div>
+               <div class="request-feedback hidden" role="status"></div>`
         }
-      </article>
-    `;
+      </article>`;
   }).join("");
 }
 
