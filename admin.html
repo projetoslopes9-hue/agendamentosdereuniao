@@ -167,6 +167,156 @@ tbody tr:hover{background:#f7faff}
   display:none;margin-top:13px;padding:11px 13px;border-radius:9px;
   color:#a51f2a;background:#fff0f1;font-size:12px
 }
+  
+/* Solicitações recebidas — visual aprimorado */
+#requests {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+#requests .item {
+  position: relative;
+  padding: 22px;
+  margin: 0;
+  border: 1px solid #e3eaf5;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #ffffff, #f8faff);
+  box-shadow: 0 4px 14px rgba(26, 55, 100, .045);
+  transition: transform .22s ease, box-shadow .22s ease,
+              border-color .22s ease;
+  overflow-wrap: anywhere;
+}
+
+#requests .item:hover {
+  transform: translateY(-3px);
+  border-color: #b9d0ff;
+  box-shadow: 0 12px 25px rgba(37, 99, 235, .10);
+}
+
+#requests .request-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+#requests .request-person {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+#requests .request-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 43px;
+  height: 43px;
+  border-radius: 13px;
+  color: #2458d6;
+  background: #eaf1ff;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+#requests .request-person strong {
+  display: block;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+#requests .request-details {
+  display: grid;
+  gap: 10px;
+  padding: 15px 0;
+  border-top: 1px solid #e9eef6;
+  border-bottom: 1px solid #e9eef6;
+  color: #5e6d83;
+  font-size: 12px;
+}
+
+#requests .request-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+#requests .request-detail .detail-icon {
+  flex-shrink: 0;
+  width: 18px;
+}
+
+#requests .request-detail strong {
+  color: #26364f;
+}
+
+#requests .request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+#requests .request-actions button {
+  flex: 1 1 145px;
+  min-height: 42px;
+}
+
+#requests button[data-confirm] {
+  background: linear-gradient(135deg, #2864f0, #1749c6);
+  box-shadow: 0 4px 10px rgba(40, 100, 240, .15);
+}
+
+#requests button[data-reject] {
+  color: #c12736;
+  background: #fff0f1;
+  border: 1px solid #ffdadd;
+}
+
+#requests button[data-reject]:hover {
+  color: white;
+  background: #c12736;
+}
+
+#requests button:disabled {
+  opacity: .65;
+  transform: none;
+  cursor: wait;
+}
+
+#requests .request-feedback {
+  padding: 10px 12px;
+  margin-top: 12px;
+  border-radius: 9px;
+  background: #eef5ff;
+  color: #2455b5;
+  font-size: 12px;
+}
+
+#requests .empty {
+  grid-column: 1 / -1;
+  padding: 30px;
+  border: 1px dashed #d5dfef;
+  border-radius: 14px;
+  background: #fafcff;
+  text-align: center;
+  color: #718198;
+}
+
+@media (max-width: 600px) {
+  #requests {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #requests .item {
+    padding: 17px;
+  }
+}
+  
 #feedback:not(:empty){display:block}
 #loginCard{max-width:440px;margin:60px auto;padding:30px}
 #loginForm label{display:block;margin:13px 0 6px}
@@ -201,6 +351,7 @@ tbody tr:hover{background:#f7faff}
   .inline-form{flex-wrap:wrap}
   .inline-form input[type=date]{width:100%}
 }
+  
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
