@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Agendar reunião</title>
+<style>
+:root{font-family:Inter,Segoe UI,Arial,sans-serif;color:#172033;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}.hero{background:linear-gradient(135deg,#163a72,#2563eb);color:white;padding:48px 20px;text-align:center}.hero h1{margin:0 0 10px;font-size:clamp(28px,5vw,42px)}.hero p{margin:0;color:#e5edff}.wrap{max-width:720px;margin:28px auto;padding:0 16px}.card{background:white;border:1px solid #e3e8f2;border-radius:18px;padding:26px;box-shadow:0 10px 30px #13284c0c}label{display:block;font-size:14px;font-weight:650;margin:15px 0 6px}input,textarea,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font:inherit}button{margin-top:20px;border:0;background:#2563eb;color:white;border-radius:10px;padding:13px 18px;font-weight:700;font-size:15px;cursor:pointer;width:100%}button:disabled{opacity:.6;cursor:wait}.muted{color:#64748b;font-size:13px;line-height:1.5}.msg{margin-top:16px;padding:12px;border-radius:9px;display:none}.ok{background:#ecfdf5;color:#065f46}.err{background:#fff1f2;color:#9f1239}footer{text-align:center;padding:22px;color:#64748b;font-size:12px}a{color:#2563eb}
+</style>
+</head>
+<body>
+<header class="hero"><h1>Agende sua reunião</h1><p>Escolha uma data e envie sua solicitação.</p></header>
+<main class="wrap"><section class="card">
+<h2>Solicitar horário</h2><p class="muted">Sua solicitação será recebida pela equipe responsável. O horário só estará confirmado após o retorno do administrador.</p>
+<form id="bookingForm">
+<label for="nome">Nome completo *</label><input id="nome" name="nome" maxlength="100" required autocomplete="name">
+<label for="email">E-mail *</label><input id="email" name="email" type="email" maxlength="254" required autocomplete="email">
+<label for="telefone">Telefone / WhatsApp</label><input id="telefone" name="telefone" maxlength="30" autocomplete="tel">
+<label for="data">Data desejada *</label><input id="data" name="data" type="date" required>
+<label for="horario">Horário desejado *</label><input id="horario" name="horario" type="time" required>
+<label for="assunto">Assunto da reunião</label><textarea id="assunto" name="assunto" rows="3" maxlength="1000"></textarea>
+<button id="submitBtn" type="submit">Enviar solicitação</button>
+<div id="message" class="msg" role="status"></div>
+</form></section></main><footer>Seus dados serão usados para tratar desta solicitação de reunião.</footer>
+<script type="module" src="./public.js"></script>
+</body></html>

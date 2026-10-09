@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Painel Administrativo</title>
+<style>
+  :root{
+    --brand:#2563eb; --brand-dark:#1d4ed8; --bg:#f5f7fb;
+    --card:#fff; --text:#1f2937; --muted:#6b7280;
+    --border:#e5e7eb; --ok:#16a34a; --danger:#dc2626; --warn:#d97706;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  a{color:var(--brand)}
+  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+  .topbar h1{margin:0;font-size:18px;color:var(--brand)}
+  .topbar .user{color:var(--muted);font-size:13px;margin-right:12px}
+  .btn{background:var(--brand);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px}
+  .btn:hover{background:var(--brand-dark)}
+  .btn.ghost{background:#fff;color:var(--text);border:1px solid var(--border)}
+  .btn.ghost:hover{background:#f3f4f6}
+  .btn.danger{background:var(--danger)}
+  .btn.small{padding:5px 10px;font-size:12px}
+  .container{max-width:1200px;margin:24px auto;padding:0 16px}
+  .hidden{display:none !important}
+  .login-wrap{max-width:380px;margin:80px auto;background:#fff;border-radius:14px;padding:32px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+  .login-wrap h2{margin-top:0}
+  label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand)}
+  .card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.04);padding:20px;margin-bottom:20px}
+  .card h2{margin:0 0 12px;font-size:16px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+  @media(max-width:720px){.kpis{grid-template-columns:1fr 1fr}}
+  .kpi{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+  .kpi .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  .kpi .value{font-size:26px;font-weight:700;margin-top:4px}
+  .tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+  .tab{padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:13px}
+  .tab.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .toolbar input{flex:1;min-width:200px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:10px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  tr:hover td{background:#fafbff}
+  .badge{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:600}
+  .badge.confirmed{background:#dcfce7;color:#166534}
+  .badge.cancelled{background:#fee2e2;color:#991b1b}
+  .badge.today{background:#fef3c7;color:#92400e}
+  .muted{color:var(--muted);font-size:12px}
+  .alert{padding:10px 14px;border-radius:8px;margin:10px 0;font-size:13px}
+  .alert.ok{background:#dcfce7;color:#166534}
+  .alert.err{background:#fee2e2;color:#991b1b}
+  .alert.info{background:#dbeafe;color:#1e40af}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .row{display:flex;gap:8px;align-items:center;margin:8px 0}
+  .row > *{flex:1}
+  .row .btn{flex:0 0 auto}
+  .list{list-style:none;padding:0;margin:10px 0 0}
+  .list li{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .weekday-row{display:grid;grid-template-columns:80px 1fr 1fr 100px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+  .weekday-row input[type=time]{padding:6px 8px}
+  .weekday-row .check{display:flex;align-items:center;gap:6px;font-weight:500}
+  .chip{display:inline-flex;gap:6px;align-items:center;background:#eef2ff;color:#3730a3;padding:4px 10px;border-radius:999px;font-size:12px;margin:3px 4px 0 0}
+  .chip button{background:none;border:none;color:#3730a3;cursor:pointer;font-weight:700;padding:0}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100}
+  .modal{background:#fff;border-radius:14px;padding:24px;max-width:460px;width:92%;max-height:90vh;overflow:auto}
+  .modal h3{margin-top:0}
+  .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+  .toast{position:fixed;bottom:24px;right:24px;background:#111827;color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;z-index:200;opacity:0;transform:translateY(10px);transition:.25s}
+  .toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<section id="loginView">
+  <div class="login-wrap">
+    <h2>🔒 Painel Administrativo</h2>
+    <p class="muted">Acesso restrito. Credenciais padrão: <code>admin@exemplo.com</code> / <code>admin123</code></p>
+    <form id="loginForm">
+      <label>E-mail</label>
+      <input name="email" type="email" value="admin@exemplo.com" required />
+      <label>Senha</label>
+      <input name="password" type="password" value="admin123" required />
+      <button class="btn" style="width:100%;margin-top:16px;padding:12px" type="submit">Entrar</button>
+    </form>
+    <div id="loginMsg"></div>
+  </div>
+</section>
+
+<!-- ==================== PAINEL ==================== -->
+<section id="appView" class="hidden">
+  <div class="topbar">
+    <h1>📅 Painel de Agendamentos</h1>
+    <div>
+      <span class="user" id="userLabel"></span>
+      <button class="btn ghost small" id="btnExport">Backup JSON</button>
+      <button class="btn ghost small" id="btnImport">Importar</button>
+      <input type="file" id="fileImport" accept="application/json" class="hidden" />
+      <button class="btn danger small" id="btnLogout">Sair</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi"><div class="label">Total</div><div class="value" id="kpiTotal">0</div></div>
+      <div class="kpi"><div class="label">Próximas</div><div class="value" id="kpiUpcoming" style="color:var(--brand)">0</div></div>
+      <div class="kpi"><div class="label">Hoje</div><div class="value" id="kpiToday" style="color:var(--warn)">0</div></div>
+      <div class="kpi"><div class="label">Canceladas</div><div class="value" id="kpiCancelled" style="color:var(--danger)">0</div></div>
+    </div>
+
+    <!-- Reuniões -->
+    <div class="card">
+      <h2>Reuniões</h2>
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-filter="upcoming">Próximas</button>
+        <button class="tab" data-filter="today">Hoje</button>
+        <button class="tab" data-filter="all">Todas</button>
+        <button class="tab" data-filter="cancelled">Canceladas</button>
+        <button class="tab" data-filter="past">Passadas</button>
+      </div>
+      <div class="toolbar">
+        <input id="search" placeholder="Buscar por nome, e-mail, empresa ou assunto..." />
+      </div>
+      <div style="overflow:auto">
+        <table id="bookingsTable">
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Cliente</th>
+              <th>Contato</th>
+              <th>Assunto</th>
+              <th>Status</th>
+              <th style="width:220px">Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="emptyMsg" class="muted hidden" style="padding:16px 0;text-align:center">Nenhuma reunião encontrada.</div>
+    </div>
+
+    <!-- Configurações -->
+    <div class="grid2">
+
+      <!-- Disponibilidade -->
+      <div class="card">
+        <h2>Disponibilidade semanal</h2>
+        <p class="muted">Marque os dias e defina os horários de atendimento.</p>
+        <div id="weekdayConfig"></div>
+        <label style="margin-top:16px">Duração da reunião (min)</label>
+        <input id="cfgSlot" type="number" min="10" step="5" />
+        <label>Intervalo entre reuniões (min)</label>
+        <input id="cfgBuffer" type="number" min="0" step="5" />
+        <button class="btn" style="margin-top:16px" id="btnSaveConfig">Salvar configurações</button>
+      </div>
+
+      <!-- Bloqueios + Equipe -->
+      <div class="card">
+        <h2>Bloqueios (férias, feriados)</h2>
+        <div class="row">
+          <input type="date" id="blockDate" />
+          <button class="btn small" id="btnAddBlock">Bloquear dia</button>
+        </div>
+        <div id="blockList"></div>
+
+        <h2 style="margin-top:24px">Equipe (notificações)</h2>
+        <div class="row">
+          <input id="teamName" placeholder="Nome" />
+          <input id="teamEmail" type="email" placeholder="email@empresa.com" />
+          <button class="btn small" id="btnAddTeam">Adicionar</button>
+        </div>
+        <ul class="list" id="teamList"></ul>
+      </div>
+
+    </div>
+
+    <!-- Histórico -->
+    <div class="card">
+      <h2>Histórico de ações</h2>
+      <ul class="list" id="historyList"></ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- Modal de reagendamento -->
+<div id="modalBg" class="modal-bg hidden">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG PADRÃO (mesma do index.html)
+   ============================================================ */
+const DEFAULT_CONFIG = {
+  availability: {
+    1:{start:"09:00",end:"18:00",enabled:true},
+    2:{start:"09:00",end:"18:00",enabled:true},
+    3:{start:"09:00",end:"18:00",enabled:true},
+    4:{start:"09:00",end:"18:00",enabled:true},
+    5:{start:"09:00",end:"17:00",enabled:true},
+    6:{start:"09:00",end:"12:00",enabled:false},
+    0:{start:"09:00",end:"12:00",enabled:false},
+  },
+  slotMinutes: 30,
+  bufferMinutes: 10,
+  admin: { email: "admin@exemplo.com", password: "admin123" }
+};
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+const Store = {
+  get(k, fb){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; }catch{ return fb; } },
+  set(k, v){ localStorage.setItem(k, JSON.stringify(v)); },
+  bookings(){ return Store.get("bookings", []); },
+  saveBookings(l){ Store.set("bookings", l); },
+  team(){ return Store.get("team", []); },
+  saveTeam(l){ Store.set("team", l); },
+  config(){ return Store.get("config", DEFAULT_CONFIG); },
+  saveConfig(c){ Store.set("config", c); },
+  blocked(){ return Store.get("blocked", []); },
+  saveBlocked(l){ Store.set("blocked", l); },
+  history(){ return Store.get("history", []); },
+  addHistory(evt){ const h = Store.history(); h.unshift({ ...evt, at: new Date().toISOString() }); Store.set("history", h.slice(0,100)); },
+};
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const pad = n => String(n).padStart(2,"0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const fmt = iso => new Date(iso).toLocaleString("pt-BR", { dateStyle:"short", timeStyle:"short" });
+const isSameDay = (a,b) => ymd(new Date(a)) === ymd(new Date(b));
+const toast = msg => {
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove("show"), 2400);
+};
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+function checkAuth(){ return sessionStorage.getItem("auth") === "1"; }
+$("#loginForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  const cfg = Store.config();
+  if (f.get("email") === cfg.admin.email && f.get("password") === cfg.admin.password){
+    sessionStorage.setItem("auth","1");
+    sessionStorage.setItem("authEmail", f.get("email"));
+    initApp();
+  } else {
+    $("#loginMsg").innerHTML = `<div class="alert err">Credenciais inválidas.</div>`;
+  }
+});
+$("#btnLogout").onclick = () => {
+  sessionStorage.removeItem("auth");
+  sessionStorage.removeItem("authEmail");
+  location.reload();
+};
+
+/* ============================================================
+   INICIALIZAÇÃO
+   ============================================================ */
+function initApp(){
+  $("#loginView").classList.add("hidden");
+  $("#appView").classList.remove("hidden");
+  $("#userLabel").textContent = sessionStorage.getItem("authEmail") || "";
+  renderAll();
+}
+
+function renderAll(){
+  renderKPIs();
+  renderBookings();
+  renderWeekdayConfig();
+  renderBlockList();
+  renderTeam();
+  renderHistory();
+}
+
+/* ============================================================
+   KPIs
+   ============================================================ */
+function renderKPIs(){
+  const list = Store.bookings();
+  const now = new Date();
+  $("#kpiTotal").textContent = list.length;
+  $("#kpiUpcoming").textContent = list.filter(b => b.status === "confirmed" && new Date(b.start_datetime) > now).length;
+  $("#kpiToday").textContent = list.filter(b => b.status === "confirmed" && isSameDay(b.start_datetime, now)).length;
+  $("#kpiCancelled").textContent = list.filter(b => b.status === "cancelled").length;
+}
+
+/* ============================================================
+   FILTRO + BUSCA + TABELA DE REUNIÕES
+   ============================================================ */
+let currentFilter = "upcoming";
+let currentSearch = "";
+
+$$("#tabs .tab").forEach(tab => tab.onclick = () => {
+  $$("#tabs .tab").forEach(t => t.classList.remove("active"));
+  tab.classList.add("active");
+  currentFilter = tab.dataset.filter;
+  renderBookings();
+});
+$("#search").addEventListener("input", e => {
+  currentSearch = e.target.value.toLowerCase();
+  renderBookings();
+});
+
+function filterBookings(){
+  const now = new Date();
+  let list = Store.bookings();
+  if (currentFilter === "upcoming") list = list.filter(b => b.status === "confirmed" && new Date(b.start_datetime) > now);
+  if (currentFilter === "today")    list = list.filter(b => b.status === "confirmed" && isSameDay(b.start_datetime, now));
+  if (currentFilter === "cancelled")list = list.filter(b => b.status === "cancelled");
+  if (currentFilter === "past")     list = list.filter(b => new Date(b.start_datetime) <= now);
+
+  if (currentSearch){
+    list = list.filter(b =>
+      (b.client_name||"").toLowerCase().includes(currentSearch) ||
+      (b.client_email||"").toLowerCase().includes(currentSearch) ||
+      (b.client_company||"").toLowerCase().includes(currentSearch) ||
+      (b.subject||"").toLowerCase().includes(currentSearch)
+    );
+  }
+  list.sort((a,b) => new Date(a.start_datetime) - new Date(b.start_datetime));
+  return list;
+}
+
+function renderBookings(){
+  const list = filterBookings();
+  const tbody = $("#bookingsTable tbody");
+  tbody.innerHTML = "";
+
+  if (!list.length){
+    $("#emptyMsg").classList.remove("hidden");
+    return;
+  }
+  $("#emptyMsg").classList.add("hidden");
+
+  const now = new Date();
+  list.forEach(b => {
+    const tr = document.createElement("tr");
+    const today = b.status==="confirmed" && isSameDay(b.start_datetime, now);
+    tr.innerHTML = `
+      <td>
+        <strong>${fmt(b.start_datetime)}</strong>
+        ${today ? '<div><span class="badge today">HOJE</span></div>' : ''}
+      </td>
+      <td>
+        ${escapeHtml(b.client_name)}<br>
+        <span class="muted">${escapeHtml(b.client_company||"—")}</span>
+      </td>
+      <td>
+        ${escapeHtml(b.client_email)}<br>
+        <span class="muted">${escapeHtml(b.client_phone||"—")}</span>
+      </td>
+      <td>
+        ${escapeHtml(b.subject)}<br>
+        <span class="muted">${escapeHtml((b.description||"").slice(0,80))}</span>
+      </td>
+      <td><span class="badge ${b.status}">${b.status}</span></td>
+      <td>
+        ${b.status==="confirmed" ? `
+          <button class="btn ghost small" data-act="copy" data-id="${b.id}">Copiar link</button>
+          <button class="btn ghost small" data-act="ics"  data-id="${b.id}">.ics</button>
+          <button class="btn ghost small" data-act="resched" data-id="${b.id}">Reagendar</button>
+          <button class="btn danger small" data-act="cancel" data-id="${b.id}">Cancelar</button>
+        ` : `
+          <button class="btn ghost small" data-act="reopen" data-id="${b.id}">Reabrir</button>
+          <button class="btn ghost small" data-act="delete" data-id="${b.id}">Excluir</button>
+        `}
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll("button[data-act]").forEach(btn => {
+    btn.onclick = () => handleAction(btn.dataset.act, btn.dataset.id);
+  });
+}
+
+function escapeHtml(s){
+  return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ============================================================
+   AÇÕES SOBRE REUNIÕES
+   ============================================================ */
+function handleAction(act, id){
+  const list = Store.bookings();
+  const idx = list.findIndex(b => b.id === id);
+  if (idx < 0) return;
+  const b = list[idx];
+
+  if (act === "copy"){
+    navigator.clipboard.writeText(b.meet_link)
+      .then(() => toast("Link copiado!"))
+      .catch(() => prompt("Copie o link:", b.meet_link));
+  }
+  if (act === "ics") downloadIcs(b);
+  if (act === "cancel"){
+    if (!confirm(`Cancelar a reunião com ${b.client_name}?`)) return;
+    list[idx] = { ...b, status:"cancelled", cancelled_at: new Date().toISOString() };
+    Store.saveBookings(list);
+    Store.addHistory({ action:"cancel", id, cliente:b.client_name });
+    toast("Reunião cancelada.");
+    renderAll();
+  }
+  if (act === "reopen"){
+    list[idx] = { ...b, status:"confirmed" };
+    Store.saveBookings(list);
+    Store.addHistory({ action:"reopen", id, cliente:b.client_name });
+    toast("Reunião reaberta.");
+    renderAll();
+  }
+  if (act === "delete"){
+    if (!confirm("Excluir definitivamente este registro?")) return;
+    list.splice(idx,1);
+    Store.saveBookings(list);
+    Store.addHistory({ action:"delete", id, cliente:b.client_name });
+    toast("Registro excluído.");
+    renderAll();
+  }
+  if (act === "resched") openRescheduleModal(b);
+}
+
+/* ============================================================
+   MODAL DE REAGENDAMENTO
+   ============================================================ */
+function openRescheduleModal(b){
+  const bg = $("#modalBg"), content = $("#modalContent");
+  const start = new Date(b.start_datetime);
+  content.innerHTML = `
+    <h3>Reagendar reunião</h3>
+    <p class="muted">Cliente: <strong>${escapeHtml(b.client_name)}</strong></p>
+    <label>Nova data</label>
+    <input type="date" id="rDate" value="${ymd(start)}" />
+    <label>Novo horário</label>
+    <input type="time" id="rTime" value="${pad(start.getHours())}:${pad(start.getMinutes())}" />
+    <p class="muted" id="rConflict" style="margin-top:10px"></p>
+    <div class="actions">
+      <button class="btn ghost" id="rCancel">Fechar</button>
+      <button class="btn" id="rSave">Salvar</button>
+    </div>
+  `;
+  bg.classList.remove("hidden");
+  $("#rCancel").onclick = () => bg.classList.add("hidden");
+  $("#rSave").onclick = () => {
+    const d = $("#rDate").value, t = $("#rTime").value;
+    if (!d || !t){ alert("Informe data e hora."); return; }
+    const newStart = new Date(`${d}T${t}:00`);
+    const duration = new Date(b.end_datetime) - new Date(b.start_datetime);
+    const newEnd = new Date(newStart.getTime() + duration);
+
+    // Conflito?
+    const conflict = Store.bookings().some(x =>
+      x.id !== b.id && x.status === "confirmed" &&
+      newStart < new Date(x.end_datetime) && newEnd > new Date(x.start_datetime)
+    );
+    if (conflict){
+      $("#rConflict").innerHTML = `<span style="color:var(--danger)">⚠️ Conflito com outro agendamento neste horário.</span>`;
+      return;
+    }
+
+    const list = Store.bookings().map(x => x.id === b.id
+      ? { ...x, start_datetime: newStart.toISOString(), end_datetime: newEnd.toISOString(), rescheduled_at: new Date().toISOString() }
+      : x
+    );
+    Store.saveBookings(list);
+    Store.addHistory({ action:"reschedule", id:b.id, cliente:b.client_name, newDate:newStart.toISOString() });
+    bg.classList.add("hidden");
+    toast("Reunião reagendada.");
+    renderAll();
+  };
+}
+
+/* ============================================================
+   ICS
+   ============================================================ */
+function downloadIcs(b){
+  const dt = iso => new Date(iso).toISOString().replace(/[-:]|\.\d{3}/g,"");
+  const ics = [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Agendamento//PT-BR",
+    "BEGIN:VEVENT",
+    `UID:${b.id}`,
+    `DTSTAMP:${dt(new Date().toISOString())}`,
+    `DTSTART:${dt(b.start_datetime)}`,
+    `DTEND:${dt(b.end_datetime)}`,
+    `SUMMARY:${b.subject}`,
+    `DESCRIPTION:Reunião com ${b.client_name}\\nLink: ${b.meet_link}`,
+    `LOCATION:${b.meet_link}`,
+    "END:VEVENT","END:VCALENDAR"
+  ].join("\r\n");
+  const blob = new Blob([ics], { type:"text/calendar" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `reuniao-${b.id.slice(0,8)}.ics`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ============================================================
+   DISPONIBILIDADE SEMANAL
+   ============================================================ */
+const WEEKDAYS = [
+  {n:1,label:"Segunda"},{n:2,label:"Terça"},{n:3,label:"Quarta"},
+  {n:4,label:"Quinta"},{n:5,label:"Sexta"},{n:6,label:"Sábado"},{n:0,label:"Domingo"}
+];
+
+function renderWeekdayConfig(){
+  const cfg = Store.config();
+  const wrap = $("#weekdayConfig");
+  wrap.innerHTML = "";
+  WEEKDAYS.forEach(w => {
+    const rule = cfg.availability[w.n] || { start:"09:00", end:"18:00", enabled:false };
+    const row = document.createElement("div");
+    row.className = "weekday-row";
+    row.innerHTML = `
+      <label class="check"><input type="checkbox" data-day="${w.n}" ${rule.enabled?"checked":""}/> ${w.label}</label>
+      <input type="time" data-day="${w.n}" data-field="start" value="${rule.start}" />
+      <input type="time" data-day="${w.n}" data-field="end" value="${rule.end}" />
+    `;
+    wrap.appendChild(row);
+  });
+  $("#cfgSlot").value = cfg.slotMinutes;
+  $("#cfgBuffer").value = cfg.bufferMinutes;
+}
+
+$("#btnSaveConfig").onclick = () => {
+  const cfg = Store.config();
+  const availability = {};
+  $$("#weekdayConfig input[type=checkbox]").forEach(cb => {
+    const day = cb.dataset.day;
+    const start = $(`input[data-day="${day}"][data-field="start"]`).value;
+    const end   = $(`input[data-day="${day}"][data-field="end"]`).value;
+    availability[day] = { start, end, enabled: cb.checked };
+  });
+  cfg.availability = availability;
+  cfg.slotMinutes = Number($("#cfgSlot").value) || 30;
+  cfg.bufferMinutes = Number($("#cfgBuffer").value) || 0;
+  Store.saveConfig(cfg);
+  Store.addHistory({ action:"config_update" });
+  toast("Configurações salvas.");
+};
+
+/* ============================================================
+   BLOQUEIOS
+   ============================================================ */
+$("#btnAddBlock").onclick = () => {
+  const d = $("#blockDate").value;
+  if (!d) return;
+  const list = Store.blocked();
+  if (!list.includes(d)) list.push(d);
+  Store.saveBlocked(list);
+  $("#blockDate").value = "";
+  toast("Dia bloqueado.");
+  renderAll();
+};
+
+function renderBlockList(){
+  const list = Store.blocked().sort();
+  const el = $("#blockList");
+  el.innerHTML = list.length
+    ? list.map(d => `<span class="chip">${d} <button data-unblock="${d}">×</button></span>`).join("")
+    : `<p class="muted">Nenhum bloqueio cadastrado.</p>`;
+  el.querySelectorAll("[data-unblock]").forEach(b => b.onclick = () => {
+    Store.saveBlocked(Store.blocked().filter(x => x !== b.dataset.unblock));
+    renderAll();
+  });
+}
+
+/* ============================================================
+   EQUIPE
+   ============================================================ */
+$("#btnAddTeam").onclick = () => {
+  const name = $("#teamName").value.trim();
+  const email = $("#teamEmail").value.trim();
+  if (!name || !email){ toast("Preencha nome e e-mail."); return; }
+  const team = Store.team();
+  if (team.some(t => t.email === email)){ toast("E-mail já cadastrado."); return; }
+  team.push({ name, email });
+  Store.saveTeam(team);
+  $("#teamName").value = ""; $("#teamEmail").value = "";
+  Store.addHistory({ action:"team_add", email });
+  toast("Integrante adicionado.");
+  renderAll();
+};
+
+function renderTeam(){
+  const team = Store.team();
+  const ul = $("#teamList");
+  ul.innerHTML = team.length
+    ? team.map(t => `<li><span><strong>${escapeHtml(t.name)}</strong> — ${escapeHtml(t.email)}</span>
+        <button class="btn danger small" data-rm="${t.email}">Remover</button></li>`).join("")
+    : `<li class="muted">Nenhum integrante cadastrado.</li>`;
+  ul.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => {
+    Store.saveTeam(Store.team().filter(t => t.email !== b.dataset.rm));
+    Store.addHistory({ action:"team_remove", email:b.dataset.rm });
+    renderAll();
+  });
+}
+
+/* ============================================================
+   HISTÓRICO
+   ============================================================ */
+function renderHistory(){
+  const h = Store.history();
+  const ul = $("#historyList");
+  ul.innerHTML = h.length
+    ? h.map(ev => `<li>
+        <span>${escapeHtml(ev.action)} ${ev.cliente ? "— "+escapeHtml(ev.cliente) : ""} ${ev.email ? "— "+escapeHtml(ev.email) : ""}</span>
+        <span class="muted">${fmt(ev.at)}</span>
+      </li>`).join("")
+    : `<li class="muted">Nenhuma ação registrada.</li>`;
+}
+
+/* ============================================================
+   BACKUP / IMPORTAÇÃO
+   ============================================================ */
+$("#btnExport").onclick = () => {
+  const data = {
+    exportedAt: new Date().toISOString(),
+    bookings: Store.bookings(),
+    team: Store.team(),
+    config: Store.config(),
+    blocked: Store.blocked(),
+    history: Store.history(),
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `backup-agendamentos-${ymd(new Date())}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast("Backup gerado.");
+};
+
+$("#btnImport").onclick = () => $("#fileImport").click();
+$("#fileImport").onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (data.bookings) Store.saveBookings(data.bookings);
+      if (data.team) Store.saveTeam(data.team);
+      if (data.config) Store.saveConfig(data.config);
+      if (data.blocked) Store.saveBlocked(data.blocked);
+      if (data.history) Store.set("history", data.history);
+      toast("Backup restaurado.");
+      renderAll();
+    } catch { toast("Arquivo inválido."); }
+  };
+  reader.readAsText(file);
+};
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+if (checkAuth()) initApp();
+</script>
+</body>
+</html>

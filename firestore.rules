@@ -1,0 +1,48 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.uid == 'fatArQtywpak9xoPiS6gPvFSCZx2';
+    }
+
+    // Clientes podem criar solicitações com campos e tipos limitados.
+    // Não podem listar, ler, editar ou excluir solicitações.
+    match /solicitacoesPublicas/{id} {
+      allow create: if
+        request.resource.data.keys().hasAll(['nome','email','data','horario','status','createdAt'])
+        && request.resource.data.keys().hasOnly(['nome','email','telefone','data','horario','assunto','status','createdAt'])
+        && request.resource.data.nome is string
+        && request.resource.data.nome.size() >= 2
+        && request.resource.data.nome.size() <= 100
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.data is string
+        && request.resource.data.data.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.horario is string
+        && request.resource.data.horario.matches('^[0-9]{2}:[0-9]{2}$')
+        && request.resource.data.status == 'pendente'
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /agendamentos/{id} {
+      allow read, write: if isAdmin();
+    }
+    match /configuracoes/{id} {
+      allow read, write: if isAdmin();
+    }
+    match /bloqueios/{id} {
+      allow read, write: if isAdmin();
+    }
+    match /equipe/{id} {
+      allow read, write: if isAdmin();
+    }
+    match /historico/{id} {
+      allow read, write: if isAdmin();
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
