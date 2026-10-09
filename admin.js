@@ -44,8 +44,15 @@ $("#requests").addEventListener("click",async e=>{
    // A solicitação é convertida em reunião, mas o sistema não cria automaticamente um link do Meet.
    const snapData=await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js").then(async m=>{const s=await m.getDoc(ref);return s.exists()?s.data():null;});
    if(!snapData)throw new Error("Solicitação não encontrada");
-   await addDoc(collection(db,"agendamentos"),{client_name:snapData.nome,email:snapData.email,phone:snapData.telefone||"",data:snapData.data,horario:snapData.horario,subject:snapData.assunto||"",status:"confirmed",createdAt:serverTimestamp(),sourceRequestId:confirmId});
-   await updateDoc(ref,{status:"confirmada"});
-  } else if(rejectId) await updateDoc(doc(db,"solicitacoesPublicas",rejectId),{status:"recusada"});
- }catch(err){console.error(err);alert("Não foi possível concluir a ação. Confira as regras e a conexão do Firebase.");}
+   await addDoc(collection(db, "agendamentos"), {
+  client_name: snapData.nome,
+  email: snapData.email,
+  phone: snapData.telefone || "",
+  data: snapData.data,
+  horario: snapData.horario,
+  durationMinutes: 60,
+  subject: snapData.assunto || "",
+  status: "confirmed",
+  createdAt: serverTimestamp(),
+  sourceRequestId: confirmId
 });
