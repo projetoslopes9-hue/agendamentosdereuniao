@@ -2,7 +2,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/fireba
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 import { getFirestore, collection, query, orderBy, onSnapshot, doc, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
-
+import {
+  getFunctions,
+  httpsCallable
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js";
 const ADMIN_UID="fatArQtywpak9xoPiS6gPvFSCZx2";
 const $=s=>document.querySelector(s);
 let auth,db,unsubRequests,unsubBookings;
