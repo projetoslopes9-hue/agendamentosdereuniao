@@ -320,30 +320,103 @@ function renderRequests() {
   }).join("");
 }
 
-$("#requests")?.addEventListener("click", async event => {
-  const button = event.target.closest("button");
+
+$("#dashboard")?.addEventListener("click", async (event) => {
+  const button = event.target.closest(
+    "#requests button[data-confirm], #requests button[data-reject]"
+  );
+
   if (!button) return;
 
   const confirmId = button.dataset.confirm;
   const rejectId = button.dataset.reject;
-  if (!confirmId && !rejectId) return;
+  const requestId = confirmId || rejectId;
 
-  button.disabled = true;
+  if (!requestId) return;
+
+  if (!db || !auth?.currentUser) {
+    alert("Você precisa estar autenticado para realizar esta ação.");
+    return;
+  }
+
+  if (auth.currentUser.uid !== ADMIN_UID) {
+    alert("Sua conta não tem permissão de administrador.");
+    return;
+  }
+
+  const card = button.closest("[data-request-id]");
+  if (!card) {
+    alert("Não foi possível localizar a solicitação. Atualize a página.");
+    return;
+  }
+
+  const confirmAction = Boolean(confirmId);
+
+  if (!window.confirm(
+    confirmAction
+      ? "Deseja confirmar esta reunião?"
+      : "Deseja recusar esta solicitação?"
+  )) return;
+
+  const buttons = card.querySelectorAll("button");
+  buttons.forEach(b => b.disabled = true);
 
   try {
-    if (confirmId) {
-      const requestRef = doc(db, "solicitacoesPublicas", confirmId);
-      const requestSnapshot = await getDoc(requestRef);
+    const requestRef = doc(db, "solicitacoesPublicas", requestId);
+    const requestSnap = await getDoc(requestRef);
 
-      if (!requestSnapshot.exists()) {
-        throw new Error("Solicitação não encontrada.");
+    if (!requestSnap.exists()) {
+      throw new Error("Esta solicitação não existe mais no Firebase.");
+    }
+
+    const request = requestSnap.data();
+
+    if (request.status !== "pendente") {
+      throw new Error("Esta solicitação já foi processada.");
+    }
+
+    if (confirmAction) {
+      // Evita criar a reunião se a solicitação não tiver os dados essenciais.
+      if (!request.nome || !request.email || !request.data || !request.horario) {
+        throw new Error("A solicitação não possui todos os dados necessários.");
       }
 
-      const requestData = requestSnapshot.data();
+      await addDoc(collection(db, "agendamentos"), {
+        client_name: request.nome,
+        nome: request.nome,
+        email: request.email,
+        phone: request.telefone || "",
+        data: request.data,
+        horario: request.horario,
+        durationMinutes: 60,
+        subject: request.assunto || "",
+        status: "confirmed",
+        createdAt: serverTimestamp(),
+        sourceRequestId: requestId
+      });
 
-      if (requestData.status !== "pendente") {
-        throw new Error("Esta solicitação já foi processada.");
-      }
+      await updateDoc(requestRef, {
+        status: "confirmada"
+      });
+
+      alert("Reunião registrada e solicitação confirmada.");
+    } else {
+      await updateDoc(requestRef, {
+        status: "recusada"
+      });
+
+      alert("Solicitação recusada.");
+    }
+  } catch (error) {
+    console.error("Erro ao processar solicitação:", error);
+    alert("Não foi possível concluir a ação: " + (
+      error.code === "permission-denied"
+        ? "O Firebase bloqueou a operação. Verifique as regras do Firestore."
+        : error.message || "Erro inesperado."
+    ));
+    buttons.forEach(b => b.disabled = false);
+  }
+});
 
       /*
        * Confirmação manual no Firestore.
